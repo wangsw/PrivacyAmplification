@@ -42,30 +42,21 @@ Unified, Tight, and Fast Privacy Amplification in the Shuffle Model of Different
 
 
 - List of amplification parameters for Local metric DP randomizers
-::: {#tab:parameterslmdp}
-                             **randomizer**                             **parameter $p$**                                                         **parameter $\beta$**                                                         **parameter $q$**
-  -------------------------------------------------------------------- ------------------- ----------------------------------------------------------------------------------------------------------------------------------- -------------------
-                           general mechanisms                             $e^{d_{01}}$                                                     $\frac{e^{d_{01}}-1}{e^{d_{01}}+1}$                                                    $e^{d_{max}}$
-   Laplace mechanism [@alvim2018local], $\ell_1$-norm on $\mathbb{R}$     $e^{d_{01}}$                                                              $1-e^{-d_{01}/2}$                                                             $e^{d_{max}}$
-    planar Laplace [@andres2013geo], $\ell_2$-norm on $\mathbb{R}^2$      $e^{d_{01}}$      $2\int_{0}^{\frac{d_{01}}{2}}\int_{-\infty}^{+\infty}\frac{e^{-\sqrt{(x-\frac{d_{01}}{2})^2+y^2}}}{2\pi}\mathrm{d} y \mathrm{d}x$     $e^{d_{max}}$
-   $(B,m,F)$-WitchHat [@wang2023SMDP], $\ell_1$-norm on $\mathbb{R}$      $e^{d_{01}}$                                      $\frac{2(e^{m}-e^{{d_{01}}/{F}}+{d_{01}}/{F}-m)}{F(e^{m}-1)+2B}$                                      $e^{d_{max}}$
 
-  : A summary of amplification parameters of
-  $\mech{S}(\mech{R}(x_1^0),..., \mech{R}(x_n))$ and
-  $\mech{S}(\mech{R}(x_1^1),..., \mech{R}(x_n)))$ for local
-  $d_\dom{X}$-DP randomizers, $d_{01}=d_\dom{X}(x_1^0,x_1^1)$ and
-  $d_{max}=\max_{x\in \dom{X}} \max\{d_\dom{X}(x_1^0,x), d_\dom{X}(x_1^1,x)\}$.
-:::
+| **randomizer**                                               | **parameter $p$** | **parameter $\beta$**                                                                                                   | **parameter $q$** |
+|------------------------------------------------------------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| general mechanisms                                                     | $e^{d_{01}}$                | $\frac{e^{d_{01}}-1}{e^{d_{01}}+1}$                                                                                               | $e^{d_{max}}$               |
+| Laplace mechanism \cite{alvim2018local}, $\ell_1$-norm on $\mathbb{R}$ | $e^{d_{01}}$                | $1-e^{-d_{01}/2}$                                                                                                                 | $e^{d_{max}}$               |
+| planar Laplace \cite{andres2013geo}, $\ell_2$-norm on $\mathbb{R}^2$   | $e^{d_{01}}$                | $2\int_{0}^{\frac{d_{01}}{2}}\int_{-\infty}^{+\infty}\frac{e^{-\sqrt{(x-\frac{d_{01}}{2})^2+y^2}}}{2\pi}\mathrm{d} y \mathrm{d}x$ | $e^{d_{max}}$               |
+| $(B,m,F)$-WitchHat \cite{wang2023SMDP}, $\ell_1$-norm on $\mathbb{R}$  | $e^{d_{01}}$                | $\frac{2(e^{m}-e^{{d_{01}}/{F}}+{d_{01}}/{F}-m)}{F(e^{m}-1)+2B}$                                                                  | $e^{d_{max}}$               |
+
 
 
 - List of amplification parameters for multi-message local randomizers
-::: {#tab:parametersmulti}
-                                             **randomizer**                                               **parameter $p$**     **parameter $\beta$**   **parameter $q$**
-  ---------------------------------------------------------------------------------------------------- ----------------------- ----------------------- -------------------
-   secret shares over group $\mathbb{Z}_{l}$ [@ghazi2019scalable; @ghazi2020fewer; @balle2020private]         $+\infty$                  $1$                   $l$
-     Cheu *et al.* [@cheu2022differentially] with flip prob. $f\in [0,0.5]$ on $\{0,1\}^d$ vectors      $\frac{(1-f)^2}{f^2}$          $1-2f$            $\frac{1-f}{f}$
-                Balls-into-bins [@luo2022frequency] with $d$ bins (and $s$ special bins)                      $+\infty$                  $1$              $\frac{d}{s}$
 
-  : A summary of amplification parameters of some multi-message shuffle
-  private protocols.
-:::
+| **randomizer**                                                                                 | **parameter $p$** | **parameter $\beta$** | **parameter $q$** |
+|----------------------------------------------------------------------------------------------------------|-----------------------------|---------------------------------|-----------------------------|
+| secret shares over group $\mathbb{Z}_{l}$ \cite{ghazi2019scalable,ghazi2020fewer,balle2020private}       | $+\infty$                   | $1$                             | $l$                         |
+| Cheu \textit{et al.} \cite{cheu2022differentially} with flip prob. $f\in [0,0.5]$ on $\{0,1\}^d$ vectors | $\frac{(1-f)^2}{f^2}$       | $1-2f$                          | $\frac{1-f}{f}$             |
+| Balls-into-bins \cite{luo2022frequency} with $d$ bins (and $s$ special bins)                             | $+\infty$                   | $1$                             | $\frac{d}{s}$               |
+
