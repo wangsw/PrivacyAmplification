@@ -19,8 +19,9 @@ Unified, Tight, and Fast Privacy Amplification in the Shuffle Model of Different
 - List of amplification parameters for LDP randomizers
 
 
+
 ::: {#tab:parametersldp}
-                                   **randomizer**                                   **parameter $p$**                                                                        **parameter $\beta$**                                                                         **parameter $q$**
+**randomizer**                                   **parameter $p$**                                                                        **parameter $\beta$**                                                                         **parameter $q$**
   -------------------------------------------------------------------------------- ------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------ -------------------
                                  general mechanisms                                  $e^{\epsilon}$                                                                 $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                 $e^{\epsilon}$
                Laplace mechanism for $[0,1]$ [@dwork2006calibrating]                 $e^{\epsilon}$                                                                           $1-e^{-\epsilon/2}$                                                                           $e^{\epsilon}$
