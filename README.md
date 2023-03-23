@@ -11,4 +11,4 @@ for most local randomizers, q0=q1=q, except 2-RR and exponential mechanism for m
 
 - To compute tight privacy amplification lower bound, call:
 
-**amplificationLB(p, beta, q0, q1, n, delta, T, step)*
+**amplificationLB(p, beta, q0, q1, n, delta, T, step)**
