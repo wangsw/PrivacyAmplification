@@ -1,6 +1,5 @@
 import scipy.stats as stats
 from scipy.special import comb
-import numpy as math
 import numpy as np
 from datetime import datetime, date, time
 import json
@@ -160,6 +159,7 @@ if __name__ == '__main__':
     epsilons = np.array([0.1, 1.0, 3.0, 5.0]) # local epsilon for single-message protocols
     #epsilons = np.arange(0.01, 1.02, 0.03) # global epsilon for multi-message protocols
 
+    #ms = [None] # general LDP mechanism
     ms = [None, "laplace", "piecewise", "krr", "subset", "localhash", "hardamard", "hardamardB", "collision"]
     #ms = ["krr_para_advanced", "krr_para_basic", "krr_sep_best", "krr_sep_worst"] # range queries with krr
     #ms = ["cheu", "balls2bins"] # multi-message protocols
