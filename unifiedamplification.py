@@ -1,15 +1,13 @@
 import scipy.stats as stats
 from scipy.special import comb
 import numpy as np
-from datetime import datetime, date, time
+from datetime import datetime
 import json
-
-
 from time import process_time
 
-def Delta(ep, alpha, r0, r1, n, step, p, tol=1e-12):
-    # step means maxcount in binom.expect
-    rate = 0.5
+
+def Delta(ep, alpha, r0, r1, n, p, tol=1e-12):
+    rate = r0/(r0+r1)
 
     def fvlow(c):
         # vectorized computation for a list of c (required by scipy.stats.rv_discrete.expect)
@@ -42,19 +40,20 @@ def Delta(ep, alpha, r0, r1, n, step, p, tol=1e-12):
         p1 = alpha*v0+p*alpha*v1+(1-alpha-p*alpha)*v2
         return p1-np.exp(ep)*p0
 
-    delta0 = stats.binom.expect(fvlow, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=step, chunksize=32)
-    delta1 = stats.binom.expect(fvhigh, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=step, chunksize=32)
+    delta0 = stats.binom.expect(fvlow, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=n, chunksize=32)
+    delta1 = stats.binom.expect(fvhigh, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=n, chunksize=32)
     return max(delta0, delta1)
 
 
-def amplificationUB(p, beta, q0, q1, n, delta, T, step=40):
+def amplificationUB(p, beta, q0, q1, n, delta, T):
     # privacy amplification upper bound
     alpha = beta/(p-1)
     r0 = alpha*p/q0
     r1 = alpha*p/q1
-    return amplificationUBCore(p, alpha, r0, r1, n, delta, T, step)
+    return amplificationUBCore(p, alpha, r0, r1, n, delta, T)
 
-def amplificationUBCore(p, alpha, r0, r1, n, delta, T, step):
+
+def amplificationUBCore(p, alpha, r0, r1, n, delta, T):
     epL = 0
     epH = np.log(p)
 
@@ -62,22 +61,22 @@ def amplificationUBCore(p, alpha, r0, r1, n, delta, T, step):
     tol = 1e-14
     for t in range(T):
         ep = (epL+epH)/2.0
-        if Delta(ep, alpha, r0, r1, n, step, p, tol)+tol > delta:
+        if Delta(ep, alpha, r0, r1, n, p, tol)+tol > delta:
             epL = ep
         else:
             epH = ep
     return epH
 
 
-def amplificationLB(p, beta, q0, q1, n, delta, T, step=40):
+def amplificationLB(p, beta, q0, q1, n, delta, T):
     # privacy amplification lower bound
     alpha = beta/(p-1)
     r0 = alpha*p/q0
     r1 = alpha*p/q1
-    return amplificationLBCore(p, alpha, r0, r1, n, delta, T, step)
+    return amplificationLBCore(p, alpha, r0, r1, n, delta, T)
 
 
-def amplificationLBCore(p, alpha, r0, r1, n, delta, T, step):
+def amplificationLBCore(p, alpha, r0, r1, n, delta, T):
     epL = 0
     epH = np.log(p)
 
@@ -85,7 +84,7 @@ def amplificationLBCore(p, alpha, r0, r1, n, delta, T, step):
     tol = 1e-14
     for t in range(T):
         ep = (epL+epH)/2.0
-        if Delta(ep, alpha, r0, r1, n, step, p, tol)-tol > delta:
+        if Delta(ep, alpha, r0, r1, n, p, tol)-tol > delta:
             epL = ep
         else:
             epH = ep
@@ -93,6 +92,7 @@ def amplificationLBCore(p, alpha, r0, r1, n, delta, T, step):
 
 
 def computeUBParameters(epsilon, mechanism, options):
+    # variation-ratio parameters for upper bounds
     p = np.exp(epsilon)
     beta = (np.exp(epsilon)-1)/(np.exp(epsilon)+1)
     q = np.exp(epsilon)
@@ -150,7 +150,7 @@ def computeUBParameters(epsilon, mechanism, options):
         k = int(options)
         beta = 0
         for h in range(int(np.log2(k))):
-            beta = (np.exp(epsilon)-1)/(np.exp(epsilon)+2**h-1)/int(np.log2(k))
+            beta = (np.exp(epsilon)-1)/(np.exp(epsilon)+2**(h+1)-1)/int(np.log2(k))
     return p, beta, q, q
 
 
@@ -159,30 +159,26 @@ if __name__ == '__main__':
     epsilons = np.array([0.1, 1.0, 3.0, 5.0]) # local epsilon for single-message protocols
     #epsilons = np.arange(0.01, 1.02, 0.03) # global epsilon for multi-message protocols
 
-    #ms = [None] # general LDP mechanism
+    #ms = [None] # general LDP mechanisms
     ms = [None, "laplace", "piecewise", "krr", "subset", "localhash", "hardamard", "hardamardB", "collision"]
     #ms = ["krr_para_advanced", "krr_para_basic", "krr_sep_best", "krr_sep_worst"] # range queries with krr
     #ms = ["cheu", "balls2bins"] # multi-message protocols
-
 
     #bounds = ["variation_ratio", "variation_ratio_closed", "variation_ratio_tightclosed", "strong_clone", "strong_clone_closed", "clone", "clone_closed",
     #"erlingsson", "erlingsson_closed", "blanket_hoeffding", "blanket_bennett", "blanket_hoeffding_generic", "blanket_bennett_generic"]
     bounds = ["variation_ratio", "variation_ratio_closed", "variation_ratio_tightclosed", "strong_clone", "strong_clone_closed", "clone_closed"]
     #bounds = ["variation_ratio", "variation_ratio_tightclosed", "variation_ratio_closed"]
 
-
+    # the dict for recording amplification settings/results
     results = {}
     results["epsilons"] = epsilons.tolist()
     results["ms"] = ms
 
-    #n = 100000000
-    n = 1000
+    n = 10000
     nusers = n
     delta = 0.01/n
+    # number of binary search iterations
     T = 20
-    step = n
-    defaultstep = step
-
 
     d = 100 # 64, 2048, domain size
     s = 8 # sparsity parameter for set-valued data or key-value data
@@ -192,9 +188,8 @@ if __name__ == '__main__':
     print("epsilons, n, ms, d, s", epsilons, n, ms, (d,s))
     print("bounds", bounds)
 
-
-    filename = "unified_n"+str(n)+"_d"+str(d)+"_s"+str(s)+".json"
-    filename = None
+    #filename = "unified_n"+str(n)+"_d"+str(d)+"_s"+str(s)+".json"
+    filename = None  # means don't save results to disk
 
     for epsilon in epsilons:
         # for single-message
@@ -205,7 +200,6 @@ if __name__ == '__main__':
 
         # for multi-message protocol
         #options = [(n, epsilon, delta), (d, s)] # options for multi-message protocols
-
 
         for mi, m in enumerate(ms):
             if m in ["balls2bins"]:
@@ -218,7 +212,6 @@ if __name__ == '__main__':
             else:
                 n = nusers
 
-
             if results.get(m) is None:
                 results[m] = {}
                 for bound in bounds:
@@ -226,13 +219,12 @@ if __name__ == '__main__':
             if "variation_ratio" in bounds:
                 p, beta, q0, q1 = computeUBParameters(epsilon=epsilon, mechanism=ms[mi], options=options[mi])
                 start = process_time()
-                ub = amplificationUB(p, beta, q0, q1, n, delta, T, step)
+                ub = amplificationUB(p, beta, q0, q1, n, delta, T)
                 end = process_time()
 
                 results[m]["variation_ratio"].append(ub)
-
                 #print running time
-                print("running time: m, epsilon, n, step, process time", m, epsilon, n, step, end-start)
+                print("running time: m, epsilon, n, process time", m, epsilon, n, end-start)
                 #results[m]["time_variation_ratio"].append(end-start)
 
             if "variation_ratio_closed" in bounds:
@@ -261,7 +253,7 @@ if __name__ == '__main__':
                 p = np.exp(epsilon)
                 alpha = 1.0/(np.exp(epsilon)+1)
                 r = 1.0/(np.exp(epsilon)+1)
-                ub_sc = amplificationUBCore(p, alpha, r, r, n, delta, T, step)
+                ub_sc = amplificationUBCore(p, alpha, r, r, n, delta, T)
                 results[m]["strong_clone"].append(ub_sc)
 
             if "strong_clone_closed" in bounds:
@@ -271,7 +263,6 @@ if __name__ == '__main__':
                 if n > 8*np.log(4/delta)/r:
                     aub2 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(16*np.log(4/delta)/(r*(n-1)))+2/(r*(n-1))))
                 results[m]["strong_clone_closed"].append(aub2)
-
 
             # clone reduction, Vitaly Feldman, Audra McMillan, and Kunal Talwar. Hiding among the clones: A simple and nearly optimal analysis of privacy amplification by shuffling. In 2021 IEEE 62nd Annual Symposium on Foundations of Computer Science (FOCS), pages 954–964. IEEE, 202
             # for comparison with numerical clone, download https://github.com/apple/ml-shuffling-amplification/
@@ -289,7 +280,6 @@ if __name__ == '__main__':
                 if n > 8*np.log(4/delta)/r:
                     aub3 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(16*np.log(4/delta)/(r*(n-1)))+2/(r*(n-1))))
                 results[m]["clone_closed"].append(aub3)
-
 
             # privacy blanket, B. Balle, J. Bell, A. Gascon, and K. Nissim. The Privacy Blanket of the Shuffle Model, International Cryptology Conference (CRYPTO), 2019
             # for comparison with numerical privacy blanket, download https://github.com/BorjaBalle/amplification-by-shuffling
