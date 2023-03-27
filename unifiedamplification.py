@@ -55,7 +55,7 @@ def amplificationUB(p, beta, q0, q1, n, delta, T):
 
 def amplificationUBCore(p, alpha, r0, r1, n, delta, T):
     epL = 0
-    epH = np.log(p)
+    epH = np.log(p) # one may also use the closed-form bound as a starting point
 
     # tolerance in scipy.stats.rv_discrete.expect
     tol = 1e-14
