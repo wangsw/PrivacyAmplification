@@ -1,12 +1,22 @@
 # Privacy Amplification via Shuffling
 
-Unified, Tight, and Fast Privacy Amplification in the Shuffle Model of Differential Privacy
+**Unified, Tight and Fast Privacy Amplification in the Shuffle Model of Differential Privacy**
+
+&check; support LDP randomizers, metric LDP randomizers, and some multi-message randomizers
+
+&check; provide both closed-form bounds and numerical bounds (within 90 seconds for n=100,000,000)
+
+&check; support tight parallel composition
+
+&check; support tight sequential composition 
+
+## Usage
 
 - To compute tight privacy amplification upper bound, call:
 
     - **amplificationUB(p, beta, q0, q1, n, delta, T, step)**
 
-    - for most local randomizers, q0=q1=q, except 2-RR and exponential mechanism for metric privacy
+    - for most local randomizers, q0=q1=q
 
 
 - To compute tight privacy amplification lower bound, call:
