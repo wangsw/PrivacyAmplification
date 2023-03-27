@@ -2,13 +2,13 @@
 
 **Unified, Tight and Fast Privacy Amplification in the Shuffle Model of Differential Privacy**
 
-&check; support LDP randomizers, metric LDP randomizers, and some multi-message randomizers
+&check; LDP randomizers, metric LDP randomizers, and some multi-message randomizers
 
-&check; provide both closed-form bounds and numerical bounds (within 90 seconds for n=100,000,000)
+&check; closed-form bounds and numerical bounds (within 90 seconds for n=100,000,000)
 
-&check; support tight parallel composition
+&check; tight parallel composition
 
-&check; support tight sequential composition 
+&check; tight sequential composition 
 
 ## Usage
 
@@ -34,7 +34,7 @@
 |------------------------------------------------------------------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | general mechanisms                                                                 | $e^{\epsilon}$              | $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                                                                          | $e^{\epsilon}$              |
 | Laplace mechanism for $[0,1]$ \cite{dwork2006calibrating}                          | $e^{\epsilon}$              | $1-e^{-\epsilon/2}$                                                                                                                                              | $e^{\epsilon}$              |
-| Duchi \textit{et al.} \cite{duchi2013local}  for $[-1,1]^d$                        | $e^{\epsilon}$              | $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                                                                          | $e^{\epsilon}$              |
+| Duchi et al. \cite{duchi2013local}  for $[-1,1]^d$                        | $e^{\epsilon}$              | $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                                                                          | $e^{\epsilon}$              |
 | Harmony mechanism for $[-1,1]^d$ \cite{nguyen2016collecting}                       | $e^{\epsilon}$              | $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                                                                          | $e^{\epsilon}$              |
 | Piecewise mechanism for $[-1,1]$ \cite{wang2019collecting}                         | $e^{\epsilon}$              | $1-e^{-\epsilon/2}$                                                                                                                                              | $e^{\epsilon}$              |
 | randomized response (RR) on $\{0,1\}$ \cite{warner1965randomized}                  | $e^{\epsilon}$              | $\frac{e^{\epsilon}-1}{e^{\epsilon}+1}$                                                                                                                          | $e^{\epsilon}$              |
@@ -66,7 +66,9 @@
 
 | **randomizer**                                                                                 | **parameter $p$** | **parameter $\beta$** | **parameter $q$** |
 |----------------------------------------------------------------------------------------------------------|-----------------------------|---------------------------------|-----------------------------|
-| secret shares over group $\mathbb{Z}_{l}$ \cite{ghazi2019scalable,ghazi2020fewer,balle2020private}       | $+\infty$                   | $1$                             | $l$                         |
-| Cheu \textit{et al.} \cite{cheu2022differentially} with flip prob. $f\in [0,0.5]$ on $\{0,1\}^d$ vectors | $\frac{(1-f)^2}{f^2}$       | $1-2f$                          | $\frac{1-f}{f}$             |
+| Balcer et al. \cite{balcer2020separating} with coin prob. $p$ for binary summation             | $+\infty$          | $1$  |  $\max\{\frac{1}{p},\frac{1}{1-p}\}$ |
+| Balcer et al. \cite{balcer2021connecting} with uniform coin for binary summation               | $+\infty$          | $1$  |  $2$ |
+| Cheu et al. \cite{cheu2022differentially} with flip prob. $f\in [0,0.5]$ on $\{0,1\}^d$ vectors | $\frac{(1-f)^2}{f^2}$       | $1-2f$                          | $\frac{1-f}{f}$             |
 | Balls-into-bins \cite{luo2022frequency} with $d$ bins (and $s$ special bins)                             | $+\infty$                   | $1$                             | $\frac{d}{s}$               |
+
 
