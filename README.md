@@ -14,14 +14,14 @@
 
 - To compute tight privacy amplification upper bound, call:
 
-    - **amplificationUB(p, beta, q0, q1, n, delta, T, step)**
+    - **amplificationUB(p, beta, q0, q1, n, delta, T)**
 
     - for most local randomizers, q0=q1=q
 
 
 - To compute tight privacy amplification lower bound, call:
 
-    - **amplificationLB(p, beta, q0, q1, n, delta, T, step)**
+    - **amplificationLB(p, beta, q0, q1, n, delta, T)**
     
     
     
