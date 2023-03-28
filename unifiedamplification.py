@@ -25,7 +25,6 @@ def Delta(ep, alpha, r0, r1, n, p, tol=1e-12):
         p1 = alpha*v0+p*alpha*v1+(1-alpha-p*alpha)*v2
         return p0-np.exp(ep)*p1
 
-
     def fvhigh(c):
         g01 = (1-alpha-alpha*p)*(n-(c+1))/(1-r0-r1)
         high01 = ((np.exp(-ep)*p-1)*alpha*(c+1)/r1+(np.exp(-ep)-1)*g01)/(alpha*(p/r0-1/r1+np.exp(-ep)*(p/r1-1/r0)))
