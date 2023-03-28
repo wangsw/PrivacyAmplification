@@ -4,7 +4,7 @@
 
 &check; LDP randomizers, metric LDP randomizers, and some multi-message randomizers
 
-&check; closed-form bounds and numerical bounds. The numerical bouond costs 90 seconds when n=100,000,000, for better efficiency (but less tighter bound), use large tolerance or small number of iterations (e.g., T=10) 
+&check; closed-form bounds and numerical bounds. The numerical bouond costs 90 seconds when n=100,000,000, for better efficiency (but less tighter bound), use large tolerance (e.g., tol=\delta/n) or small number of iterations (e.g., T=10) 
 
 &check; tight parallel composition
 
