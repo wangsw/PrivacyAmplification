@@ -57,10 +57,11 @@ def amplificationUBCore(p, alpha, r0, r1, n, delta, T):
     epH = np.log(p) # one may also use the closed-form bound as a starting point
 
     # tolerance in scipy.stats.rv_discrete.expect
-    tol = 1e-14
+    tol = max(1e-19, min(1e-14, delta/n/10.0))
     for t in range(T):
         ep = (epL+epH)/2.0
-        if Delta(ep, alpha, r0, r1, n, p, tol)+tol > delta:
+        # add tol*n*(p-np.exp(ep))*alpha to delta, extremely conservative for rigidness, one may modify the scipy.stats.rv_discrete.expect to get tighter bounds
+        if Delta(ep, alpha, r0, r1, n, p, tol)+tol*n*(p-np.exp(ep))*alpha > delta:
             epL = ep
         else:
             epH = ep
@@ -80,10 +81,11 @@ def amplificationLBCore(p, alpha, r0, r1, n, delta, T):
     epH = np.log(p)
 
     # tolerance in scipy.stats.rv_discrete.expect
-    tol = 1e-14
+    tol = max(1e-19, min(1e-14, delta/n/10.0))
     for t in range(T):
         ep = (epL+epH)/2.0
-        if Delta(ep, alpha, r0, r1, n, p, tol)-tol > delta:
+        # there is no tol*n, as scipy.stats.rv_discrete.expect always underestimate non-negative delta
+        if Delta(ep, alpha, r0, r1, n, p, tol) > delta:
             epL = ep
         else:
             epH = ep
@@ -133,7 +135,7 @@ def computeUBParameters(epsilon, mechanism, options):
         q = (1-f)/f
     elif mechanism in ['balls2bins']:
         d, s = options[0], options[1]
-        p = 10**5
+        p = 10**5  # simulate +inf
         beta = (p-1)/(p+1)
         q = d/s
     elif mechanism in ['krr_sep_best']:
@@ -173,7 +175,7 @@ if __name__ == '__main__':
     results["epsilons"] = epsilons.tolist()
     results["ms"] = ms
 
-    n = 10000
+    n = 1000000
     nusers = n
     delta = 0.01/n
     # number of binary search iterations
@@ -188,7 +190,7 @@ if __name__ == '__main__':
     print("bounds", bounds)
 
     #filename = "unified_n"+str(n)+"_d"+str(d)+"_s"+str(s)+".json"
-    filename = None  # means don't save results to disk
+    filename = None  # None means don't save results to disk
 
     for epsilon in epsilons:
         # for single-message
