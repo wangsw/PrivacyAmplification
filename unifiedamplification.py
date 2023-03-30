@@ -60,8 +60,8 @@ def amplificationUBCore(p, alpha, r0, r1, n, delta, T):
     tol = max(1e-19, min(1e-14, delta/n/10.0))
     for t in range(T):
         ep = (epL+epH)/2.0
-        # add tol*n*(p-np.exp(ep))*alpha to delta, extremely conservative for rigidness, one may modify the scipy.stats.rv_discrete.expect to get tighter bounds
-        if Delta(ep, alpha, r0, r1, n, p, tol)+tol*n*(p-np.exp(ep))*alpha > delta:
+        # add tol*n to delta, extremely conservative for rigidness, one may modify the scipy.stats.rv_discrete.expect to get tighter bounds
+        if Delta(ep, alpha, r0, r1, n, p, tol)+tol*n > delta:
             epL = ep
         else:
             epH = ep
