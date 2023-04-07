@@ -16,8 +16,8 @@ def Delta(ep, alpha, r0, r1, n, p, tol=1e-12):
         g2 = (1-alpha-alpha*p)*(n-c)/(1-r0-r1)
         low2 = ((np.exp(ep)*p-1)*alpha*c/r1+(np.exp(ep)-1)*g2)/(alpha*(p/r0-1/r1+np.exp(ep)*(p/r1-1/r0)))
 
-        v0 = np.array([1-stats.binom.cdf(int(np.ceil(low01[i]))-1, c[i], rate) for i in range(len(c))])
-        v1 = np.array([1-stats.binom.cdf(int(np.ceil(low01[i]-1))-1, c[i], rate) for i in range(len(c))])
+        v0 = np.array([1-stats.binom.cdf(int(np.ceil(low01[i]))-2, c[i], rate) for i in range(len(c))])
+        v1 = np.array([1-stats.binom.cdf(int(np.ceil(low01[i]))-1, c[i], rate) for i in range(len(c))])
         v2 = np.array([1-stats.binom.cdf(int(np.ceil(low2[i]))-1, c[i], rate) for i in range(len(c))])
 
         # linear transformation (and weights are independent from c)
@@ -40,7 +40,13 @@ def Delta(ep, alpha, r0, r1, n, p, tol=1e-12):
         return p1-np.exp(ep)*p0
 
     delta0 = stats.binom.expect(fvlow, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=n, chunksize=32)
-    delta1 = stats.binom.expect(fvhigh, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=n, chunksize=32)
+    if r0 == r1:
+        # by the symmetry of r0 and r1, delta0 always equals to delta1
+        delta1 = delta0
+    else:
+        delta1 = stats.binom.expect(fvhigh, args=(n-1, r0+r1), lb=0, ub=n-1, tolerance=tol, maxcount=n, chunksize=32)
+    #print("delta01", delta0, delta1)
+
     return max(delta0, delta1)
 
 
@@ -61,7 +67,7 @@ def amplificationUBCore(p, alpha, r0, r1, n, delta, T):
     for t in range(T):
         ep = (epL+epH)/2.0
         # add tol*n to delta, extremely conservative for rigidness, one may modify the scipy.stats.rv_discrete.expect to get tighter bounds
-        if Delta(ep, alpha, r0, r1, n, p, tol)+tol*n > delta:
+        if Delta(ep, alpha, r0, r1, n, p, tol)+tol*n   > delta:
             epL = ep
         else:
             epH = ep
@@ -158,10 +164,13 @@ def computeUBParameters(epsilon, mechanism, options):
 
 if __name__ == '__main__':
     epsilons = np.array([0.1, 1.0, 3.0, 5.0]) # local epsilon for single-message protocols
+    #epsilons = np.array([1.0, 2.0, 3.0, 4.0])
     #epsilons = np.arange(0.01, 1.02, 0.03) # global epsilon for multi-message protocols
+
 
     #ms = [None] # general LDP mechanisms
     ms = [None, "laplace", "piecewise", "krr", "subset", "localhash", "hardamard", "hardamardB", "collision"]
+    #ms = [None, "collision"]
     #ms = ["krr_para_advanced", "krr_para_basic", "krr_sep_best", "krr_sep_worst"] # range queries with krr
     #ms = ["cheu", "balls2bins"] # multi-message protocols
 
@@ -195,6 +204,7 @@ if __name__ == '__main__':
     for epsilon in epsilons:
         # for single-message
         options = [None, None, None, d, (d, int(np.ceil(d/(np.exp(epsilon)+0)))), int(np.exp(epsilon)+1), (d, d/2), (d, d/2, 8), (s, int(s*np.exp(epsilon)+2*s-1))]
+        #options = [None, s]
 
         # for range query with parallel composition on krr
         #options = [d, d, d, d]
