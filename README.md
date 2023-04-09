@@ -1,6 +1,6 @@
 # Privacy Amplification via Shuffling
 
-**Unified, Tight and Fast Privacy Amplification in the Shuffle Model of Differential Privacy**
+**Unified, Simplified, Tight, and Fast Privacy Amplification in the Shuffle Model of Differential Privacy**
 
 &check; LDP randomizers, metric LDP randomizers, and some multi-message randomizers
 
