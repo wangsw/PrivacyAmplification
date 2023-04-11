@@ -245,7 +245,7 @@ if __name__ == '__main__':
                 aub1 = epsilon
                 if n > 8*np.log(4/delta)/r:
                     c = max(0, 4*(1-3*r)/(9*(1-2*r)))
-                    aub1 = np.log(1+beta/((1-c)*(1+p)*beta/(p-1)+c)*(np.sqrt(16*np.log(4/delta)/(r*(n-1)))+2/(r*(n-1))))
+                    aub1 = np.log(1+beta/((1-c)*(1+p)*beta/(p-1)+c)*(np.sqrt(32*np.log(4/delta)/(r*(n-1)))+4/(r*(n-1))))
                 results[m]["variation_ratio_closed"].append(aub1)
 
             if "variation_ratio_tightclosed" in bounds:
@@ -272,7 +272,7 @@ if __name__ == '__main__':
                 r = 1.0/(np.exp(epsilon)+1)
                 aub2 = epsilon
                 if n > 8*np.log(4/delta)/r:
-                    aub2 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(16*np.log(4/delta)/(r*(n-1)))+2/(r*(n-1))))
+                    aub2 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(32*np.log(4/delta)/(r*(n-1)))+4/(r*(n-1))))
                 results[m]["strong_clone_closed"].append(aub2)
 
             # clone reduction, Vitaly Feldman, Audra McMillan, and Kunal Talwar. Hiding among the clones: A simple and nearly optimal analysis of privacy amplification by shuffling. In 2021 IEEE 62nd Annual Symposium on Foundations of Computer Science (FOCS), pages 954–964. IEEE, 202
@@ -289,7 +289,7 @@ if __name__ == '__main__':
                 r = 1.0/(2*np.exp(epsilon))
                 aub3 = epsilon
                 if n > 8*np.log(4/delta)/r:
-                    aub3 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(16*np.log(4/delta)/(r*(n-1)))+2/(r*(n-1))))
+                    aub3 = np.log(1+(np.exp(epsilon)-1)/(np.exp(epsilon)+1)*(np.sqrt(32*np.log(4/delta)/(r*(n-1)))+4/(r*(n-1))))
                 results[m]["clone_closed"].append(aub3)
 
             # privacy blanket, B. Balle, J. Bell, A. Gascon, and K. Nissim. The Privacy Blanket of the Shuffle Model, International Cryptology Conference (CRYPTO), 2019
