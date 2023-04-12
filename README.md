@@ -2,6 +2,8 @@
 
 **Unified, Simplified, Tight, and Fast Privacy Amplification in the Shuffle Model of Differential Privacy**
 
+Manuscript available at: <https://arxiv.org/abs/2304.05007>
+
 &check; LDP randomizers, metric LDP randomizers, and some multi-message randomizers
 
 &check; closed-form bounds and numerical bounds. The numerical bound takes 15 seconds for n=1,000,000 and 2 minutes for n=100,000,000. For better efficiency (but less tighter bound), use large tolerance (e.g., tol=\delta/n) or small number of iterations (e.g., T=10) 
@@ -69,6 +71,7 @@
 | Balcer et al. \cite{balcer2020separating} with coin prob. $p$ for binary summation             | $+\infty$          | $1$  |  $\max\{\frac{1}{p},\frac{1}{1-p}\}$ |
 | Balcer et al. \cite{balcer2021connecting} with uniform coin for binary summation               | $+\infty$          | $1$  |  $2$ |
 | Cheu et al. \cite{cheu2022differentially} with flip prob. $f\in [0,0.5]$ on $\{0,1\}^d$ vectors | $\frac{(1-f)^2}{f^2}$       | $1-2f$                          | $\frac{1-f}{f}$             |
-| Balls-into-bins \cite{luo2022frequency} with $d$ bins (and $s$ special bins)                             | $+\infty$                   | $1$                             | $\frac{d}{s}$               |
+| Balls-into-bins \cite{luo2022frequency,li2023privacy} with $d$ bins (and $s$ special bins)                             | $+\infty$                   | $1$                             | $\frac{d}{s}$               |
+| mixDUMP \cite{li2023privacy} with flip prob. $f\in [0,\frac{d-1}{d}]$ on $d$ bins                         | $\frac{(1-f)(d-1)}{f}$      | $\frac{(1-f)(d-1)-f}{d-1}$ | $(1-f)d$ |
 
 
