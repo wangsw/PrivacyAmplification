@@ -10,7 +10,9 @@ Manuscript available at: <https://arxiv.org/abs/2304.05007>
 
 &check; tight parallel composition
 
-&check; tight sequential composition 
+&check; tight sequential composition
+
+&check; compatible with subsampling
 
 ## Usage
 
