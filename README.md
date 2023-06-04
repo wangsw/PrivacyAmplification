@@ -6,7 +6,7 @@ Manuscript available at: <https://arxiv.org/abs/2304.05007>
 
 &check; LDP randomizers, metric LDP randomizers, and some multi-message randomizers
 
-&check; closed-form bounds and numerical bounds. The numerical bound takes 15 seconds for n=1,000,000 and 2 minutes for n=100,000,000. For better efficiency (but less tighter bound), use large tolerance (e.g., tol=\delta/n) or small number of iterations (e.g., T=10) 
+&check; closed-form bounds and numerical bounds. The numerical bound takes 15 seconds for n=100,000,000. For better efficiency (but less tighter bound), use large tolerance (e.g., tol=\delta/n) or small number of iterations (e.g., T=8) 
 
 &check; tight parallel composition
 
