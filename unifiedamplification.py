@@ -188,7 +188,7 @@ if __name__ == '__main__':
     nusers = n
     delta = 0.01/n
     # number of binary search iterations
-    T = 20
+    T = 12
 
     d = 100 # 64, 2048, domain size
     s = 8 # sparsity parameter for set-valued data or key-value data
