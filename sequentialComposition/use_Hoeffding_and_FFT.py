@@ -1,6 +1,6 @@
 """
-Fourier composition analyses for generalized variation-ratio reduction in the shuffle model,
-based on the code of https://github.com/DPBayes/numerical-shuffler-experiments
+Fourier composition analyses for variation-ratio reduction in the shuffle model,
+based on the code of https://github.com/DPBayes/numerical-shuffler-experiments with (non-fatal) bugs fixed
 """
 
 import numpy as np
@@ -67,6 +67,7 @@ def get_omega(n, k, p, beta, q1, q2, nx, L):
     #print("i", lower_i, upper_i)
 
     for i in range(lower_i, upper_i+1):
+        # bug fix: upper_i+1 vs. upper_i in https://github.com/DPBayes/numerical-shuffler-experiments
 
         lower_j=int(max(0,np.floor(i*(r1/(r1+r2)-np.sqrt(tol_/(2*(i+1)))))))
         upper_j=int(min(i,np.ceil(i*(r1/(r1+r2)+np.sqrt(tol_/(2*(i+1)))))))
@@ -75,6 +76,7 @@ def get_omega(n, k, p, beta, q1, q2, nx, L):
         #print("j", (i, lower_j, upper_j), (alpha, r1, r2, r1+r2))
 
         for j in range(lower_j, upper_j+1):
+            # bug fix: upper_j+1 vs. upper_j in https://github.com/DPBayes/numerical-shuffler-experiments
             p_temp=get_logP2(i, j, n, p, beta, q1, q2)
             P1.append(p_temp)
             a=j+1
@@ -224,7 +226,6 @@ def heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepe
         FF1s.append(FF1s[ni%startrepeat])
 
     t1 = time.perf_counter()
-
     # save memory in np.prod(FF1s, axis=0), via a batch model
     batch = 32
     prods = []
@@ -257,14 +258,14 @@ def heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepe
 n=int(1E4)
 p = np.exp(4.0)
 beta = (p-1)/(p+1)
-q1 = 1.001
+q1 = p
 q2 = p
-n_eps = 30
-epsilons = np.array(list(np.linspace(0.02, 0.5, 49))+list(np.linspace(0.52, 1.0, 25))+list(np.linspace(1.1, 4.0, n_eps)))
+n_eps = 30+50+180
+epsilons = np.array(list(np.linspace(0.02, 0.5, 49))+list(np.linspace(0.52, 1.0, 25))+list(np.linspace(1.1, 50.0, n_eps)))
 
 
-nx=int(1E7)
-L=20
+nx=int(2E7)
+L=50
 dx=2*L/nx
 ks=[]
 
@@ -287,11 +288,11 @@ def improved_tv_bound(epsilons):
         term = max(np.exp(sum_V) - np.exp(sum_not_V), 0)
         sum_term += term
 
-    total_variation = sum_term / prod_term
+    total_variation = sum_term/prod_term
     return total_variation
 
 
-def get_mms_inf_vector_params(n, s, m, v, T=20, reduction="advancedvaritionratio", reverse=False):
+def get_mms_inf_vector_params(n, s, m, v, T=20, reduction="varitionratio", reverse=False):
     # Multi-Message Shuffled Privacy in Federated Learning
     ns = []
     ps = []
@@ -305,20 +306,12 @@ def get_mms_inf_vector_params(n, s, m, v, T=20, reduction="advancedvaritionratio
             vmi = 4**(-mi/3)/denom*v if mi < m else 4**(-m/3+1/3)/denom*v
             pmi = (1-np.sqrt((vmi**2/s**2)/(vmi**2/s**2+4)))/2
 
-            p = (1.0-pmi)/pmi
-            beta = 1.0-2*pmi
-            q1 = 1.0001
+
+            #if reduction in ["variationratio"]:
+            p = ((1.0-pmi)/pmi)**s
+            beta = improved_tv_bound([np.log(p)/s]*s)
+            q1 = p
             q2 = p
-            if s > 1:
-                p = ((1.0-pmi)/pmi)**s
-                beta = improved_tv_bound([np.log(p)/s]*s)
-                q1 = p
-                q2 = p
-            if reduction in ["variationratio"]:
-                p = ((1.0-pmi)/pmi)**s
-                beta = improved_tv_bound([np.log(p)/s]*s)
-                q1 = p
-                q2 = p
             if reduction in ["strongerclone"]:
                 p = ((1.0-pmi)/pmi)**s
                 beta = (p-1)/(p+1)
@@ -328,7 +321,7 @@ def get_mms_inf_vector_params(n, s, m, v, T=20, reduction="advancedvaritionratio
                 temp = q1
                 q1 = q2
                 q2 = temp
-            #print((n, s, m, v, t), (p, beta, q1, q2))
+            print((n, s, m, v, t), (p, beta, q1, q2))
             ns.append(n)
             ps.append(p)
             betas.append(beta)
@@ -337,39 +330,25 @@ def get_mms_inf_vector_params(n, s, m, v, T=20, reduction="advancedvaritionratio
     return ns, ps, betas, q1s, q2s
 
 
-n = 10000
-s = 1
-v = 4.0
-m = int(np.ceil(v))
-T = 1
+n = 100000
+v = 2.0  #total local budget
+s = int(np.ceil(v))
+m = 1
+T = 256
 epsilons = epsilons
-
-print("settings", n, s, m, v, T)
 
 print("-----stronger-clone-----")
 ns, ps, betas, q1s, q2s = get_mms_inf_vector_params(n, s, m, v, T, "strongerclone")
 heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepeat=len(ns)//T)
 print("+++++stronger-clone+++++")
 
-# print("-----variation-ratio-----")
-# ns, ps, betas, q1s, q2s = get_mms_inf_vector_params(n, s, m, v, T, "variationratio")
-# heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepeat=len(ns)//T)
-# print("+++++variation-ratio+++++")
 
-print("-----advanced-variation-ratio-----")
-ns, ps, betas, q1s, q2s = get_mms_inf_vector_params(n, s, m, v, T, "advancedvariationratio")
+print("-----variation-ratio-----")
+ns, ps, betas, q1s, q2s = get_mms_inf_vector_params(n, s, m, v, T, "variationratio")
 heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepeat=len(ns)//T)
-
-print("\t--reverse, due to insymmetry, take their maximum delta--")
-ns, ps, betas, q1s, q2s = get_mms_inf_vector_params(n, s, m, v, T, "advancedvariationratio", reverse=True)
-heterougenousComposition(ns, ps, betas, q1s, q2s, nx, L, epsilons, startrepeat=len(ns)//T)
-print("\t++reverse, due to insymmetry, take their maximum delta++")
-
-print("+++++advanced-variation-ratio+++++")
+print("+++++variation-ratio+++++")
 
 print("+++++multi-message-federated-learning-simulation+++++")
-print("settings", n, s, m, v, T)
-
 #"""
 
 """
@@ -384,7 +363,7 @@ def get_decision_trees_category_params(n, d, f, h, t, m, withdelta=False):
     deltaratios = []
     for ti in range(t):
         for hi in range(h):
-            p = np.exp(20.0)
+            p = np.exp(30.0)
             beta = (p-1)/(p+1)
             q1 = f**(hi+1)
             q2 = q1
@@ -405,9 +384,9 @@ def get_decision_trees_category_params(n, d, f, h, t, m, withdelta=False):
 n = 10000
 d = 10
 f = 2 # fan out
-h = 5 # tree height
-t = 1  # number of trees
-m = 4 # number of messages per user
+h = 8 # tree height
+t = 5  # number of trees
+m = 6 # number of messages per user
 
 target_delta = 0.01/n
 
@@ -440,76 +419,6 @@ print("advanced composition", (
                             np.sqrt(2*len(epss)*np.log(1/(target_delta-np.sum(deltas))))*np.max(epss)+len(epss)*np.max(epss)*(np.exp(np.max(epss))-1),
                             target_delta), epss, deltas)
 # np.min underestimates privacy, for just comparision, do not use in real world
-
-
-# use heterogeneous composition
-def compute_LHS(epsilon_js, epsilon_prime):
-    m = len(epsilon_js)
-    n = m  # Number of variables
-
-    # Compute log_D = sum_{j=1}^{m} log(1 + e^{epsilon_j})
-    log_D = sum(math.log1p(math.exp(epsilon_j)) for epsilon_j in epsilon_js)
-    total_eps = sum(epsilon_js)
-
-    sum_DV = 0.0
-
-    # Iterate over all subsets V of [d]
-    for bits in range(1 << n):
-        S_V = sum(epsilon_js[j] for j in range(n) if (bits >> j) & 1)
-        S_not_V = total_eps - S_V
-
-        log_DV1 = S_V
-        log_DV2 = epsilon_prime + S_not_V
-        max_log = max(log_DV1, log_DV2)
-
-        # Compute D_V = e^{S_V} - e^{epsilon' + S_not_V} safely
-        exp_diff = math.exp(log_DV1 - max_log) - math.exp(log_DV2 - max_log)
-        D_V = math.exp(max_log) * exp_diff if exp_diff > 0 else 0
-
-        if D_V > 0:
-            sum_DV += D_V
-
-    LHS = math.exp(-log_D) * sum_DV
-    return LHS
-
-def compute_RHS(delta, delta_js):
-    denom = math.prod(1 - delta_j for delta_j in delta_js)
-    RHS = 1 - (1 - delta) / denom
-    return RHS
-
-def find_min_epsilon_prime(epsilon_js, delta_js, delta, tol=5e-2):
-    m = len(epsilon_js)
-    if m >= 20:
-        raise ValueError("The number of epsilon_js must be less than 20 due to computational limitations.")
-
-    lower = 0
-    upper = sum(epsilon_js)*2  # Initial upper bound
-
-    RHS = compute_RHS(delta, delta_js)
-
-    while upper - lower > tol:
-        mid = (lower + upper) / 2
-        LHS = compute_LHS(epsilon_js, mid)
-
-        if LHS <= RHS:
-            upper = mid
-        else:
-            lower = mid
-    return upper
-
-# maxcomp = 10  # maximum number of composition, as it requires exponential computation costs
-# start = 0
-# currentep = 0.0
-# currentdelta = 0.0
-# while start < len(epss):
-#     tempepss = [currentep]+epss[start:min(len(epss)+1, start+maxcomp)]
-#     tempdeltas = [currentdelta]+deltas[start:min(len(epss)+1, start+maxcomp)]
-#     tempdelta = (target_delta-currentdelta)/(np.ceil((len(epss)-start)/maxcomp))
-#     currentep = find_min_epsilon_prime(tempepss, tempdeltas, currentdelta+tempdelta)
-#     currentdelta += tempdelta
-#     start += maxcomp
-#     print((len(epss), start), currentep, currentdelta)
-# print("heterougeneous advanced composition", (currentep, currentdelta), target_delta)
 
 
 print("+++++advanced-composition+++++")
